@@ -1,23 +1,33 @@
 <template>
-<div class="login-wrap">
-  <van-nav-bar title="登录" />
-  <form action="/home" method="POST">
-    <van-cell-group>
-      <van-field v-model="user.mobile" required clearable label="手机号"  placeholder="请输入手机号"  />
-      <van-field v-model="user.code" type="password" label="密码" placeholder="请输入密码" required />
-    </van-cell-group>
-    <van-button type="info" @click.prevent="dengLogin" block>登录</van-button>
-  </form>
-</div>
+  <div class="login-wrap">
+    <van-nav-bar title="登录" />
+    <form action="/home" method="POST">
+      <van-cell-group>
+        <van-field
+          v-validate="'required|mobile'"
+          name="phone"
+          :error-message="errors.first('phone')"
+          v-model="form.mobile"
+          required
+          clearable
+          label="手机号"
+          placeholder="请输入手机号"
+        />
+        <van-field v-model="form.code" type="password" label="密码" placeholder="请输入密码" required />
+      </van-cell-group>
+      <van-button type="info" @click.prevent="dengLogin" block>登录</van-button>
+    </form>
+  </div>
 </template>
 
 <script>
-import axios from 'axios'
+// 引入模块
+import { login } from '@/api/user'
 export default {
   name: 'LoginIndex',
   data () {
     return {
-      user: {
+      form: {
         mobile: '18801185985',
         code: '246810'
       }
@@ -25,13 +35,20 @@ export default {
   },
   methods: {
     async dengLogin () {
-      const res = await axios({
-        method: 'POST',
-        url: `http://ttapi.research.itcast.cn/app/v1_0/authorizations`,
-        data: this.user
-      })
-      console.log(res)
-      this.$router.push('/home')
+      try {
+        this.$validator.validate().then(async valid => {
+          if (!valid) {
+            return
+          }
+          const data = await login(this.user)
+          // 获取token
+          console.log(data)
+          this.$store.commit('setuser', data)
+        })
+      } catch (error) {
+        console.log(error)
+      }
+      // this.$router.push('/home')
     }
   }
 }
@@ -39,5 +56,4 @@ export default {
 </script>
 
 <style lang='less'>
-
 </style>

@@ -1,5 +1,7 @@
 <template>
-  <div>首頁</div>
+  <div>
+    <h3>wnwnen</h3>
+  </div>
 </template>
 
 <script>
